@@ -1,19 +1,25 @@
 import { createRouter, createWebHistory } from "vue-router";
-import ToDoList from '../components/ToDoList.vue'
-import MainMenu from '../components/MainMenu.vue'
+import CreateToDos  from '../components/CreateToDos.vue'
+import List from '../components/List.vue'
+import EditToDos from '../components/EditToDos.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: "/",
-      name: "MainMenu",
-      component: MainMenu,
+      name: "List",
+      component: List,
     },
     {
-      path: "/ToDoList",
-      name: "ToDoList",
-      component: ToDoList,
+      path: "/CreateToDos",
+      name: "CreateToDos",
+      component: CreateToDos,
+    },
+    {
+      path: "/EditToDos/:id",
+      name: "EditToDos",
+      component: EditToDos,
     },
     // Untuk selain halaman diatas akan diarahkan ke halaman 404
     {

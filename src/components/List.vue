@@ -1,73 +1,9 @@
 <template>
-  <button class = "btn-back" @click="$router.go(-1)">Back</button>  
+	<button class="btn-create" @click="$router.push('CreateToDos')">Create New</button>
 
-  <section class="create-todo">
-        <h1>To Do List</h1>
-
-        <form id="new-todo-form" @submit.prevent="addData">
-            <h4>Write your task below</h4>
-            <input 
-                type="text" 
-                name="content" 
-                id="content" 
-                placeholder="A sample task"
-                v-model="input_content" />
-            
-            <h4>Pick a category</h4>
-            <div class="options">
-                <label>
-                    <input 
-                        type="radio" 
-                        name="category" 
-                        id="category1" 
-                        value="business"
-                        v-model="input_category" />
-                    <span class="bubble business"></span>
-                    <div>Business</div>
-                </label>
-
-                <label>
-                    <input 
-                        type="radio" 
-                        name="category" 
-                        id="category2" 
-                        value="personal"
-                        v-model="input_category" />
-                    <span class="bubble personal"></span>
-                    <div>Personal</div>
-                </label>
-
-                <label>
-                    <input 
-                        type="radio" 
-                        name="category" 
-                        id="category3" 
-                        value="college"
-                        v-model="input_category" />
-                    <span class="bubble college"></span>
-                    <div>College</div>
-                </label>
-
-                <label>
-                    <input 
-                        type="radio" 
-                        name="category" 
-                        id="category4" 
-                        value="sports"
-                        v-model="input_category" />
-                    <span class="bubble sports"></span>
-                    <div>Sports</div>
-                </label>
-
-            </div>
-
-            <input type="submit" value="Add Task"/>
-        </form>
-	</section>
-
-    <section class="todo-list">
-        <h3>All of your task list</h3>
-        <div class="list" id="todo-list">
+    <section class = "todo-list">
+        <div class="List">
+            <h1>All of Todos List</h1>
             <div v-for="(todo,id) in todos" :key="id" :class="`todo-item ${todo.done && 'done'}`">
                 <label>
                     <input type="checkbox" v-model="todo.done" />
@@ -77,23 +13,22 @@
                             : 'general'
                     }`"></span>
 				</label>
-
-					<div class="todo-content">
-						<input type="text" v-model="todo.content" /> {{todo.category}}
-					</div>
-  
-					<div class="actions">
-						<button class="delete" @click="removeData(todo.id)">Delete</button>
-					</div>
+                <div class = "todo-content">
+                    {{todo.content}}
+                    {{todo.category}}
+                </div>  
+                <div class="actions">
+					<button class = "btn-edit" @click="$router.push({name: 'EditToDos', params: {id: todo.id}})">Edit</button>
+                    <button class ="delete" @click="removeData(todo.id)">Delete</button>
+                </div>
             </div>
         </div>
-	</section>
-
+    </section>
 </template>
 
 <script>
     import {initializeApp} from 'firebase/app';
-    import {getFirestore,collection,doc,getDocs,addDoc,deleteDoc} from 'firebase/firestore';
+    import {getFirestore,collection,doc,getDocs,deleteDoc} from 'firebase/firestore';
 
     const firebaseConfig = {
         apiKey: "AIzaSyANC5KsxuCjnOMHRtVPy-LQhc-PgDt0Llg",
@@ -108,12 +43,10 @@
     const db = getFirestore(app);
 
     export default {
-        named:"ToDOList",
+        named:"ToDoList",
         data(){
             return {
                 todos: [],                
-                input_content: '',
-                input_category: null,
             }
         },
         mounted(){
@@ -125,8 +58,6 @@
                     const querySnapshot = await getDocs(collection(db, "todos"));
                     this.todos = [];
                     querySnapshot.forEach((doc) => {
-                        console.log(doc.data());
-                        console.log(doc.id)
                         const FullTodo = {
                             id: doc.id,
                             content: doc.data().content,
@@ -140,21 +71,6 @@
                     console.log(err.message);
                 }
             },
-            async addData(){
-                try{
-                    const doc = await addDoc(collection(db, "todos"), {
-                        content: this.input_content,
-                        category: this.input_category,
-                        done: false
-                    });
-
-                    console.log("Document written with ID: ", doc.id);
-                    this.load();
-                }
-                catch(err){
-                    console.log("Error adding document:",err);
-                }
-            },
             async removeData(id){
                 try{
                     const docRef = await deleteDoc(doc(db, "todos", id));
@@ -165,33 +81,42 @@
                 }
             },
         }
-
-
-    }
+    }        
 </script>
 
 <style>
 :root {
-	--primary: #d62828;
-	--business: #3A82EE;
-	--personal: var(--primary);
+    --primary: #d62828;
+    --business: #3A82EE;
+    --personal: var(--primary);
     --college: #F59E0B;
     --general: #6B7280;
     --sports: #10B981;
-	--light: #EEE;
-	--grey: #888;
-	--dark: #313154;
-	--danger: #ff5b57;
+    --light: #EEE;
+    --grey: #888;
+    --dark: #313154;
+    --danger: #ff5b57;
 
-	--shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
-	--business-glow: 0px 0px 4px rgba(58, 130, 238, 0.75);
-	--personal-glow: 0px 0px 4px rgba(234, 64, 164, 0.75);
+    --business-glow: 0px 0px 4px rgba(58, 130, 238, 0.75);
+    --personal-glow: 0px 0px 4px rgba(234, 64, 164, 0.75);
     --college-glow: 0px 0px 4px rgba(245, 158, 11, 0.75);
     --sports-glow: 0px 0px 4px rgba(16, 185, 129, 0.75);
     --general-glow: 0px 0px 4px rgba(107, 114, 128, 0.75);
 }
 
+.main-menu{
+    background-color:#faedcd;
+}
+
+h1{
+    text-align: center;
+    font-size: 50px;
+    color: red;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
 * {
 	margin: 0;
 	padding: 0;
@@ -199,7 +124,6 @@
 	font-family: 'montserrat', sans-serif;
     background:#fefae0
 }
-
 input:not([type="radio"]):not([type="checkbox"]), button {
 	appearance: none;
 	border: none;
@@ -410,6 +334,7 @@ input:checked ~ .bubble::after {
 	color: #FFF;
 	cursor: pointer;
 	transition: 0.2s ease-in-out;
+    background: #219ebc;
 }
 
 .todo-item .actions button:hover {
@@ -418,7 +343,7 @@ input:checked ~ .bubble::after {
 
 .todo-item .actions .edit {
 	margin-right: 0.5rem;
-	background-color: var(--primary);
+	background-color: #219ebc;
 }
 
 .todo-item .actions .delete {
@@ -430,10 +355,10 @@ input:checked ~ .bubble::after {
 	color: var(--grey);
 }
 
-.btn-back{
+.btn-create{
     display: block;
     width: 10%;
-    font-size: 1.125rem;
+    font-size: 1rem;
     padding: 1rem 1.5rem;
     color: #FFF;
     background-color: #2a9d8f;
@@ -444,7 +369,7 @@ input:checked ~ .bubble::after {
     margin: 20px;
 }
 
-.btn-back:hover{
+.btn-create:hover{
     color:#fff;
     background: #264653;
 }
