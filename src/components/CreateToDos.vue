@@ -12,55 +12,20 @@
                 id="content" 
                 placeholder="A sample task"
                 v-model="input_content" />
-            
-            <h4>Pick a category</h4>
-            <div class="options">
-                <label>
-                    <input 
-                        type="radio" 
-                        name="category" 
-                        id="category1" 
-                        value="business"
-                        v-model="input_category" />
-                    <span class="bubble business"></span>
-                    <div>Business</div>
-                </label>
-
-                <label>
-                    <input 
-                        type="radio" 
-                        name="category" 
-                        id="category2" 
-                        value="personal"
-                        v-model="input_category" />
-                    <span class="bubble personal"></span>
-                    <div>Personal</div>
-                </label>
-
-                <label>
-                    <input 
-                        type="radio" 
-                        name="category" 
-                        id="category3" 
-                        value="college"
-                        v-model="input_category" />
-                    <span class="bubble college"></span>
-                    <div>College</div>
-                </label>
-
-                <label>
-                    <input 
-                        type="radio" 
-                        name="category" 
-                        id="category4" 
-                        value="sports"
-                        v-model="input_category" />
-                    <span class="bubble sports"></span>
-                    <div>Sports</div>
-                </label>
-
+            <h4>Create a category</h4>
+            <form @submit.prevent="addNewCategory">
+                <input 
+                    type="text" 
+                    name="content" 
+                    id="content"
+                    v-model="input_category" 
+                    placeholder="A sample category" />
+                <button class = "btn-addcat" type="submit">Add Category</button>
+            </form>
+            <div v-for="category in input_categories" :key="category" class = "categories">
+                {{ category }}
+                <button class = "btn-deletecat" @click="deleteCategory(category)">Delete</button>
             </div>
-
             <input type="submit" value="Add Task"/>
         </form>
 	</section>
@@ -87,15 +52,24 @@
         data(){
             return {               
                 input_content: '',
-                input_category: null,
+                input_category: '',
+                input_categories: []
             }
         },
         methods:{
+            addNewCategory() {
+                if (this.input_category == "") return;
+                this.input_categories.push(this.input_category);
+                this.input_category = "";
+            },
+            deleteCategory(index) {
+                this.input_categories.splice(index, 1);
+            },
             async addData(){
                 try{
                     const doc = await addDoc(collection(db, "todos"), {
                         content: this.input_content,
-                        category: this.input_category,
+                        categories: this.input_categories,
                         done: false
                     });
                 }
@@ -103,7 +77,7 @@
                 }
             }
         }
-}
+    }
 </script>
 
 <style>
@@ -384,5 +358,43 @@ input:checked ~ .bubble::after {
 .btn-back:hover{
     color:#fff;
     background: #264653;
+}
+
+.btn-addcat{
+    margin: auto;
+    width: 10%;
+    align-items: center;
+    border-radius: 50%;
+    padding: 20px;
+    color: #FFF;
+    background-color: #219ebc;
+    box-shadow: var(--personal-glow);
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+    margin: 10px;
+}
+
+.categories{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px;
+    color: #FFF;
+    background-color: gray;
+    font-size: 30 px;
+}
+
+.btn-deletecat{
+    margin: auto;
+    width: 10%;
+    align-items: center;
+    padding: 20px;
+    color: #FFF;
+    background-color: red;
+    box-shadow: var(--personal-glow);
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+    margin: 10px;
 }
 </style>

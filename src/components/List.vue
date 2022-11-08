@@ -15,7 +15,9 @@
 				</label>
                 <div class = "todo-content">
                     {{todo.content}}
-                    {{todo.category}}
+					<div class = "todo-categories" v-for="(category,id) in todo.categories" :key="id">
+						{{category}}
+					</div>
                 </div>  
                 <div class="actions">
 					<button class = "btn-edit" @click="$router.push({name: 'EditToDos', params: {id: todo.id}})">Edit</button>
@@ -58,13 +60,7 @@
                     const querySnapshot = await getDocs(collection(db, "todos"));
                     this.todos = [];
                     querySnapshot.forEach((doc) => {
-                        const FullTodo = {
-                            id: doc.id,
-                            content: doc.data().content,
-                            category: doc.data().category,
-                            done: doc.data().done,
-                        }
-                        this.todos.push(FullTodo);
+						this.todos.push({ id: doc.id, ...doc.data() });
                     })
                 }
                 catch (err){
