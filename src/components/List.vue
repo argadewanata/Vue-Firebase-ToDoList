@@ -3,7 +3,33 @@
 
     <section class = "todo-list">
         <div class="List">
-            <h1>All of Todos List</h1>
+            <h1>To-do List</h1>
+			<section class = "create-todo">
+				<input type="text" class="category_search" v-model="category_search" placeholder="Search Category..." />
+			</section>
+			<h2>Filtered Todo List</h2>
+            <div v-for="(todo,id) in filteredTodos" :key="id" :class="`todo-item ${todo.done && 'done'}`">
+                <label>
+                    <input type="checkbox" v-model="todo.done" />
+                    <span :class="`bubble ${
+                        todo.category == 'business' 
+                            ? 'general' 
+                            : 'general'
+                    }`"></span>
+				</label>
+                <div class = "todo-content">
+                    {{todo.content}}
+					<div class = "todo-categories" v-for="(category,id) in todo.categories" :key="id">
+						{{category}}
+					</div>
+                </div>  
+                <div class="actions">
+					<button class = "btn-edit" @click="$router.push({name: 'EditToDos', params: {id: todo.id}})">Edit</button>
+                    <button class ="delete" @click="removeData(todo.id)">Delete</button>
+                </div>
+            </div>
+
+			<h2>All Todo List</h2>
             <div v-for="(todo,id) in todos" :key="id" :class="`todo-item ${todo.done && 'done'}`">
                 <label>
                     <input type="checkbox" v-model="todo.done" />
@@ -31,6 +57,7 @@
 <script>
     import {initializeApp} from 'firebase/app';
     import {getFirestore,collection,doc,getDocs,deleteDoc} from 'firebase/firestore';
+	
 
     const firebaseConfig = {
         apiKey: "AIzaSyANC5KsxuCjnOMHRtVPy-LQhc-PgDt0Llg",
@@ -43,16 +70,20 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+	
 
     export default {
         named:"ToDoList",
         data(){
+			
             return {
+				category_search : '',
                 todos: [],                
             }
         },
         mounted(){
             this.load()
+			
         },
         methods:{
             async load(){
@@ -70,13 +101,22 @@
             async removeData(id){
                 try{
                     const docRef = await deleteDoc(doc(db, "todos", id));
+					toastr.success('Data Deleted');
                     this.load();
                 }
                 catch(err){
                     console.log("Error deleting document:",err);
                 }
             },
-        }
+        },
+		computed:{
+			filteredTodos(){
+				this.load();
+				return this.todos.filter((todo) => {
+					return todo.categories.includes(this.category_search)
+				})
+			}
+		},
     }        
 </script>
 
@@ -351,6 +391,10 @@ input:checked ~ .bubble::after {
 	color: var(--grey);
 }
 
+.todo-item .todo-content .todo-categories {
+	color:lightsalmon;
+}
+
 .btn-create{
     display: block;
     width: 10%;
@@ -369,4 +413,5 @@ input:checked ~ .bubble::after {
     color:#fff;
     background: #264653;
 }
+
 </style>
